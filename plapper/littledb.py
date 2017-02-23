@@ -24,7 +24,7 @@ try:
 except ImportError:
     umsgpack = None
 
-import jsonify
+from . import jsonify
 
 
 SQL_CREATE_TABLE = """\

@@ -20,7 +20,7 @@ import sqlite3
 import redis
 
 # our own
-import littledb
+from plapper import littledb
 
 
 __all__ = (
