@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-"""An easy to use key-value storage based on sqlite3."""
+"""An easy to use key-value storage based on sqlite3.
+
+Values can be Python dicts or lists and these will be
+automatically converted to/from binary strings on storage
+and retrieval, provided all objects they contain are
+serializable via Pickle, JSON or msgpack.
+"""
 
 from __future__ import absolute_import, print_function
 
@@ -29,6 +35,7 @@ CREATE TABLE IF NOT EXISTS "{}" (
 """
 SQL_INSERT_DOCUMENT = 'INSERT OR REPLACE INTO "{}" VALUES (?, ?)'
 SQL_SELECT_DOCUMENT = 'SELECT content FROM "{}" WHERE key = ?'
+SQL_SELECT_DOCUMENTS = 'SELECT content FROM "{}" WHERE key {} ?'
 SQL_SELECT_KEYS = 'SELECT key FROM "{}"'
 
 
@@ -137,7 +144,7 @@ class Collection(object):
         if isinstance(data, dict):
             data = self._from_dict(data)
 
-        if con.in_transaction:
+        if getattr(con, 'in_transaction', True):
             con.execute(self.SQL_INSERT_DOCUMENT, (key, data))
         else:
             with con:
@@ -145,14 +152,20 @@ class Collection(object):
 
     __setitem__ = set
 
+    def select(self, value, op='LIKE'):
+        con = self.db.connection()
+        cur = con.execute(SQL_SELECT_DOCUMENTS.format(self.name, op), (value,))
+        return (self._to_dict(row[0]) if isinstance(row[0], bytes) else row[0]
+                for row in cur.fetchall())
+
     def keys(self):
         return (r[0] for r in self.db.connection().execute(self.SQL_SELECT_KEYS))
 
     def begin(self):
-        self.db.begin_transaction()
+        self.db.begin()
 
     def commit(self):
-        self.db.connection().commit()
+        self.db.commit()
 
 
 class LittleDB(object):
@@ -164,7 +177,7 @@ class LittleDB(object):
     def connection(self):
         try:
             con = getattr(self._local, 'connection')
-            con.total_changes  # test if connection is stil valid (open)
+            con.total_changes  # test if connection is still valid (open)
         except (AttributeError, sqlite3.ProgrammingError):
             con = self._local.connection = sqlite3.connect(self.filename)
         return con
@@ -200,16 +213,16 @@ if __name__ == '__main__':
         author='Joe Doe',
         text="My hovercraft is full of eels!",
         score=3.141,
-        today=datetime.date.today(),
+        date=datetime.date.today(),
         timestamp=datetime.datetime.utcnow()
     )
 
     db = LittleDB(':memory:')
     coll = db.get_collection('documents', format='pickle')
 
-    # using the Collection instance methods
     coll.set('doc1', document)
-    print("doc1:", coll.get('doc1'))
+    res = coll.get('doc1')
+    print("doc1 (%s): %s" % (type(res), res))
 
     # using the Collection instance as a dict
     try:
@@ -222,4 +235,5 @@ if __name__ == '__main__':
     coll['doc1'] = dict(ham='bacon')
     print("doc1:", coll['doc1'])
     print("Keys:", list(coll.keys()))
+    print("Docs with key prefix 'doc':", list(coll.select('doc%')))
     db.close()
