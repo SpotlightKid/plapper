@@ -1,0 +1,123 @@
+System
+------
+
+    Python 3.5.2
+    Linux denkbett 4.8.15-1-MANJARO #1 SMP PREEMPT Thu Dec 15 22:22:45 UTC 2016 x86_64 GNU/Linux
+    Intel(R) Core(TM) i5-3230M CPU @ 2.60GHz
+
+Output files
+------------
+
+    ls -l tests/tmp3az5d6z8
+    total 426848
+    -rw-r--r-- 1 chris users  85475328 16.01.2017 05:39 dbm.db
+    -rw-r--r-- 1 chris users 112410624 16.01.2017 05:44 littledb-json.db
+    -rw-r--r-- 1 chris users  85970944 16.01.2017 05:46 littledb-msgpack.db
+    -rw-r--r-- 1 chris users 118886400 16.01.2017 05:42 littledb-pickle.db
+    -rw-r--r-- 1 chris users  34336768 16.01.2017 05:39 sqlite.db
+
+
+Testing with N = 1000000
+------------------------
+
+Test database base directory: /home/chris/work/plapper/tests/tmp3az5d6z8
+
+Generating 1000000 test documents...
+
+DBMTest
+~~~~~~~
+
+Timing WRITING with int values...
+
+Writes: 5.74455 sec.
+
+Timing READING with int values...
+
+Reads:  1.99936 sec.
+
+
+SqliteTest
+~~~~~~~~~~
+
+Timing WRITING with int values...
+
+Writes: 11.28684 sec.
+
+Timing READING with int values...
+
+Reads:  16.47881 sec.
+
+
+RedisTest
+~~~~~~~~~
+
+Timing WRITING with int values...
+
+Writes: 70.17019 sec.
+
+Timing READING with int values...
+
+Reads:  62.03820 sec.
+
+
+LittleDBPickleTest
+~~~~~~~~~~~~~~~~~~
+
+Timing WRITING with int values...
+
+Writes: 13.97321 sec.
+
+Timing READING with int values...
+
+Reads:  19.59450 sec.
+
+
+Timing WRITING with dict values...
+
+Writes: 22.29675 sec.
+
+Timing READING with dict values...
+
+Reads:  24.69732 sec.
+
+
+LittleDBJsonTest
+~~~~~~~~~~~~~~~~
+
+Timing WRITING with int values...
+
+Writes: 14.13570 sec.
+
+Timing READING with int values...
+
+Reads:  19.86182 sec.
+
+
+Timing WRITING with dict values...
+
+Writes: 43.21863 sec.
+
+Timing READING with dict values...
+
+Reads:  53.55334 sec.
+
+
+LittleDBMsgpackTest
+~~~~~~~~~~~~~~~~~~~
+
+Timing WRITING with int values...
+
+Writes: 16.32355 sec.
+
+Timing READING with int values...
+
+Reads:  19.50731 sec.
+
+
+Timing WRITING with dict values...
+
+Writes: 60.66944 sec.
+
+Timing READING with dict values...
+
+Reads:  53.41611 sec.
